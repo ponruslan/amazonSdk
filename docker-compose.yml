@@ -1,0 +1,61 @@
+version: '3.1'
+
+networks:
+  super-network:
+    driver: bridge
+
+services:
+  localstack:
+    image: localstack/localstack-full
+    container_name: localstack
+    networks:
+      - super-network
+    expose:
+      - 4566
+      - 4572
+#    ports:
+#      - '4566:4566'
+#      - '4572:4572'
+    environment:
+      - SERVICES=s3,sqs
+  db:
+    image: postgres:alpine
+    container_name: postgres
+    restart: always
+    networks:
+      - super-network
+    expose:
+      - 5432
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sqs
+
+  app:
+    container_name: spring-amazonjdk
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: spring-amazonjdk:latest
+    networks:
+      - super-network
+    links:
+      - db:db
+      - localstack:localstack
+    environment:
+      APP_PROFILE: local
+      DATASOURCE_URL: jdbc:postgresql://db:5432/sqs
+      DATASOURCE_USERNAME: postgres
+      DATASOURCE_PASSWORD: postgres
+      AWS_KEY_ID: x
+      AWS_ACCESS_KEY: x
+      AWS_S3_URL: http://localstack:4566
+      AWS_S3_BUCKET_NAME: test-bucket
+      AWS_SQS_URL: http://localstack:4566
+      AWS_SQS_QUEUE_NAME: test-queue
+      AWS_SQS_MAX_MESSAGES: 5
+    depends_on:
+      - db
+      - localstack

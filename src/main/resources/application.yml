@@ -1,0 +1,32 @@
+spring:
+  profiles:
+    active: ${APP_PROFILE:local}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/sqs}
+    username: ${DATASOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:postgres}
+
+  local-datasource:
+    driver-class-name: org.h2.Driver
+    jdbcUrl: jdbc:h2:mem:default
+    username: sa
+    password: sa
+
+aws:
+  key-id: ${AWS_KEY_ID:x}
+  access-key: ${AWS_ACCESS_KEY:x}
+
+  s3:
+    url: ${AWS_S3_URL:http://localhost:4566}
+    bucket-name: ${AWS_S3_BUCKET_NAME} test-bucket
+
+  sqs:
+    url: ${AWS_SQS_URL:http://localhost:4566}
+    queue-name: ${AWS_SQS_QUEUE_NAME:test-queue}
+    max-number-of-messages: ${AWS_SQS_MAX_MESSAGES:5}
